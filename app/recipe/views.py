@@ -7,7 +7,9 @@ from core.models import Tag
 from recipe import serializers
 
 
-class TagViewSet(viewsets.GenericViewSet, mixins.ListModelMixin):
+class TagViewSet(viewsets.GenericViewSet,
+                 mixins.ListModelMixin,
+                 mixins.CreateModelMixin):
     """
     Manage tags in a database
     """
@@ -20,3 +22,6 @@ class TagViewSet(viewsets.GenericViewSet, mixins.ListModelMixin):
     def get_queryset(self):
         """Return only the tags related to current auth user"""
         return self.queryset.filter(user=self.request.user).order_by('-name')
+
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
