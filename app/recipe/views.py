@@ -54,8 +54,24 @@ class RecipeViewSet(viewsets.ModelViewSet):
     permission_classes = (IsAuthenticated,)
     authentication_classes = (TokenAuthentication,)
 
+    def _params_to_ids(self, params: str):
+        return [int(id_str) for id_str in params.split(',')]
+
     def get_queryset(self):
-        return self.queryset.filter(user=self.request.user).order_by('id')
+        tags = self.request.query_params.get('tags')
+        ingredients = self.request.query_params.get('ingredients')
+
+        queryset = self.queryset
+
+        if tags:
+            tag_ids = self._params_to_ids(tags)
+            queryset = queryset.filter(tags__id__in=tag_ids)
+
+        if ingredients:
+            ingredient_ids = self._params_to_ids(ingredients)
+            queryset = queryset.filter(ingredients__id__in=ingredient_ids)
+
+        return queryset.filter(user=self.request.user).order_by('id')
 
     def get_serializer_class(self):
         """Return the Detail Serializer if the action is retrieve"""

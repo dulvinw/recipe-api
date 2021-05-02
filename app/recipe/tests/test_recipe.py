@@ -243,3 +243,44 @@ class PrivateUploadImageApiTests(TestCase):
                                format='multipart')
 
         self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_recipe_enpoint_filter_tags(self):
+        """Filter recipies using Tags"""
+        tag1: Tag = sample_tag(user=self.user)
+        tag2: Tag = sample_tag(user=self.user)
+        recipe1: Recipe = sample_recipe(user=self.user)
+        recipe2: Recipe = sample_recipe(user=self.user)
+        recipe1.tags.add(tag1)
+        recipe2.tags.add(tag2)
+        recipe3 = sample_recipe(user=self.user)
+
+        serializer1 = RecipeSerializer(recipe1)
+        serializer2 = RecipeSerializer(recipe2)
+        serializer3 = RecipeSerializer(recipe3)
+
+        res = self.client.get(RECIPE_URL, {'tags': f'{tag1.id},{tag2.id}'})
+
+        self.assertIn(serializer1.data, res.data)
+        self.assertIn(serializer2.data, res.data)
+        self.assertNotIn(serializer3.data, res.data)
+
+    def test_recipe_enpoint_filter_ingrediants(self):
+        """Filter recipies using Ingredients"""
+        ingredient1: Ingredient = sample_tag(user=self.user)
+        ingredient2: Ingredient = sample_tag(user=self.user)
+        recipe1: Recipe = sample_recipe(user=self.user)
+        recipe2: Recipe = sample_recipe(user=self.user)
+        recipe1.tags.add(ingredient1)
+        recipe2.tags.add(ingredient2)
+        recipe3 = sample_recipe(user=self.user)
+
+        serializer1 = RecipeSerializer(recipe1)
+        serializer2 = RecipeSerializer(recipe2)
+        serializer3 = RecipeSerializer(recipe3)
+
+        res = self.client.get(RECIPE_URL, {'tags': f'{ingredient1.id},'
+                                                   f'{ingredient2.id}'})
+
+        self.assertIn(serializer1.data, res.data)
+        self.assertIn(serializer2.data, res.data)
+        self.assertNotIn(serializer3.data, res.data)
