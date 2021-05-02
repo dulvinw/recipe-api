@@ -43,15 +43,27 @@ class IngredientsViewSet(GenericVIew):
     queryset = Ingredient.objects.all()
 
 
-class RecipeViewSet(viewsets.GenericViewSet, mixins.ListModelMixin):
+class RecipeViewSet(viewsets.ModelViewSet):
     """
     Manage the Recipe endpoint
     """
 
-    serializer_class = serializers.RecipeSerializer
     queryset = Recipe.objects.all()
     permission_classes = (IsAuthenticated,)
     authentication_classes = (TokenAuthentication,)
 
     def get_queryset(self):
         return self.queryset.filter(user=self.request.user).order_by('id')
+
+    def get_serializer_class(self):
+        """Return the Detail Serializer if the action is retrieve"""
+
+        if self.action == 'retrieve':
+            return serializers.RecipeDetailSerializer
+
+        return serializers.RecipeSerializer
+
+    def perform_create(self, serializer):
+        """Save a model with user as current auth user"""
+
+        serializer.save(user=self.request.user)
