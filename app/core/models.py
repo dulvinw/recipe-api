@@ -7,7 +7,7 @@ from django.conf import settings
 
 
 def recipe_image_file_path(instance, filename: str):
-    """Creata a unique filename using uuid and filename"""
+    """Create a unique filename using uuid and filename"""
     ext = filename.split('.')[-1]
     filename = f'{uuid.uuid4()}.{ext}'
 
